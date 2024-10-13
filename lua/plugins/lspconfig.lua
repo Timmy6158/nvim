@@ -33,5 +33,7 @@ return {
 
     -- Configure typescript-language-server
     lspconfig.tsserver.setup({})
+
+    lspconfig.tailwindcss.setup({})
   end,
 }
