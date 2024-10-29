@@ -1,8 +1,17 @@
 local harpoon = require("harpoon")
 
-harpoon:setup({})
+-- Global configuration
+harpoon:setup({
+  settings = {
+    save_on_toggle = false,
+    sync_on_ui_close = false,
+    key = function()
+      return vim.loop.cwd()
+    end,
+  },
+})
 
--- basic telescope configuration
+-- Basic telescope configuration
 local conf = require("telescope.config").values
 local function toggle_telescope(harpoon_files)
   local file_paths = {}
@@ -19,15 +28,62 @@ local function toggle_telescope(harpoon_files)
     sorter = conf.generic_sorter({}),
   }):find()
 end
--- Keymaps for Harpoon
-vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "Add file to Harpoon" })
-vim.keymap.set("n", "<leader>h1", function() harpoon:list():select(1) end, { desc = "Navigate to Harpoon file 1" })
-vim.keymap.set("n", "<leader>h2", function() harpoon:list():select(2) end, { desc = "Navigate to Harpoon file 2" })
-vim.keymap.set("n", "<leader>h3", function() harpoon:list():select(3) end, { desc = "Navigate to Harpoon file 3" })
-vim.keymap.set("n", "<leader>h4", function() harpoon:list():select(4) end, { desc = "Navigate to Harpoon file 4" })
 
--- Toggle previous & next buffers stored within Harpoon list
-vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end, { desc = "Previous Harpoon buffer" })
-vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end, { desc = "Next Harpoon buffer" })
+-- Enhanced keymaps with descriptions
+vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end,
+  { desc = "Harpoon: Add File" })
+vim.keymap.set("n", "<leader>hh", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+  { desc = "Harpoon: Quick Menu" })
 
-vim.keymap.set("n", "<leader>hh", function() toggle_telescope(harpoon:list()) end, { desc = "Open harpoon window" })
+-- Quick file navigation
+vim.keymap.set("n", "<leader>h1", function() harpoon:list():select(1) end,
+  { desc = "Harpoon: File 1" })
+vim.keymap.set("n", "<leader>h2", function() harpoon:list():select(2) end,
+  { desc = "Harpoon: File 2" })
+vim.keymap.set("n", "<leader>h3", function() harpoon:list():select(3) end,
+  { desc = "Harpoon: File 3" })
+vim.keymap.set("n", "<leader>h4", function() harpoon:list():select(4) end,
+  { desc = "Harpoon: File 4" })
+
+-- Navigation through list
+vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end,
+  { desc = "Harpoon: Previous File" })
+vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end,
+  { desc = "Harpoon: Next File" })
+
+-- Telescope integration
+vim.keymap.set("n", "<leader>hf", function() toggle_telescope(harpoon:list()) end,
+  { desc = "Harpoon: Find File" })
+
+vim.keymap.set("n", "<leader>hd", function()
+  local list = harpoon:list()
+  local items = list:display() -- Using list() to get the actual items
+  if #items == 0 then
+    print("No marks to delete")
+    return
+  end
+
+  -- Create display items with file paths
+  local display_items = {}
+  for i, item in ipairs(items) do
+    local display_path = vim.fn.fnamemodify(item, ":~:.")
+    if display_path and display_path ~= "" then
+      table.insert(display_items, string.format("%d: %s", i, display_path))
+    end
+  end
+
+  if #display_items == 0 then
+    print("No valid marks found")
+    return
+  end
+
+  vim.ui.select(display_items, {
+    prompt = "Select file to remove from Harpoon:",
+  }, function(_, idx)
+    if idx then
+      local removed_path = items[idx]
+      list:remove_at(idx)
+      print("Removed " .. vim.fn.fnamemodify(removed_path, ":~:.") .. " from Harpoon")
+    end
+  end)
+end, { desc = "Remove specific file from Harpoon" })
