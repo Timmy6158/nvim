@@ -176,7 +176,7 @@ map("n", "<leader><tab>[", "<cmd>tabprevious<cr>", { desc = "Previous Tab" })
 -- Key mapping to open the project list
 map('n', '<leader>fp', '<cmd>Telescope projects<CR>', { noremap = true, silent = true })
 map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files in root dir" })
-map("n", "<leader><Space>", "<cmd>Telescope find_files<CR>", { desc = "Find files in root dir" })
+map("n", "<leader><Space>", "<cmd>Telescope live_grep<CR>", { desc = "Find files in root dir" })
 -- Telescope custom keymap
 --local builtin = require 'telescope.builtin'
 --vim.keymap.set('n', '/', function()
