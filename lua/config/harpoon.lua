@@ -55,35 +55,6 @@ vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end,
 vim.keymap.set("n", "<leader>hf", function() toggle_telescope(harpoon:list()) end,
   { desc = "Harpoon: Find File" })
 
-vim.keymap.set("n", "<leader>hd", function()
-  local list = harpoon:list()
-  local items = list:display() -- Using list() to get the actual items
-  if #items == 0 then
-    print("No marks to delete")
-    return
-  end
-
-  -- Create display items with file paths
-  local display_items = {}
-  for i, item in ipairs(items) do
-    local display_path = vim.fn.fnamemodify(item, ":~:.")
-    if display_path and display_path ~= "" then
-      table.insert(display_items, string.format("%d: %s", i, display_path))
-    end
-  end
-
-  if #display_items == 0 then
-    print("No valid marks found")
-    return
-  end
-
-  vim.ui.select(display_items, {
-    prompt = "Select file to remove from Harpoon:",
-  }, function(_, idx)
-    if idx then
-      local removed_path = items[idx]
-      list:remove_at(idx)
-      print("Removed " .. vim.fn.fnamemodify(removed_path, ":~:.") .. " from Harpoon")
-    end
-  end)
-end, { desc = "Remove specific file from Harpoon" })
+-- Clears harpoon list
+vim.keymap.set("n", "<leader>hc", function() harpoon:list():clear() end,
+  { desc = "Harpoon: Clear all" })
